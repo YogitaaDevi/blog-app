@@ -5,6 +5,17 @@ const nextConfig: NextConfig = {
   basePath: "/blog",
   
   assetPrefix: process.env.NEXT_PUBLIC_BLOG_ASSET_PREFIX || '/blog',
+
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/blog",
+        basePath: false,
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
