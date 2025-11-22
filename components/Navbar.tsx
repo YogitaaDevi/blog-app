@@ -118,7 +118,7 @@ export default function Navbar() {
                 Logout
               </button>
             ) : (
-              <a href="/login" className="btn-primary text-sm">
+              <a href="/#login" className="btn-primary text-sm">
                 Login
               </a>
             )}
