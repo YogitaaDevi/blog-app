@@ -2,14 +2,44 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 // This component mirrors the main-app Navbar visually but links back to the main app
-// Since auth state is on main-app, we can't easily check it here client-side without cross-origin cookies/iframe magic
-// For this demo, we'll assume if they are here, they might be logged in (middleware checks)
-// or we just show "Dashboard" link which will redirect if not logged in.
+// Since auth state is on main-app, we check the auth-token cookie to determine login status
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    // Function to check auth status
+    const checkAuthStatus = () => {
+      // Check for the client-readable auth_status cookie
+      const hasAuthToken = Cookies.get('auth_status') === 'logged_in';
+      setIsLoggedIn(hasAuthToken);
+    };
+    
+    // Check on mount
+    checkAuthStatus();
+    
+    // Re-check when page becomes visible (after redirect from login)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkAuthStatus();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also check on focus (when user returns to tab)
+    window.addEventListener('focus', checkAuthStatus);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', checkAuthStatus);
+    };
+  }, [pathname]); // Re-check when pathname changes
   
   // In blog-app, usePathname includes the basePath '/blog'
   // e.g. accessing /blog returns '/blog'
@@ -57,9 +87,21 @@ export default function Navbar() {
             </div>
           </div>
           <div>
-             <a href="/dashboard" className="btn-secondary text-sm">
-                Account
+            {isLoggedIn ? (
+              <button 
+                onClick={() => {
+                  // Call blog-app's logout endpoint, which clears cookie and redirects to main-app
+                  window.location.href = '/blog/api/auth/logout';
+                }}
+                className="btn-secondary text-sm"
+              >
+                Logout
+              </button>
+            ) : (
+              <a href="/login" className="btn-primary text-sm">
+                Login
               </a>
+            )}
           </div>
         </div>
       </div>
