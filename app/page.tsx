@@ -42,7 +42,6 @@ export default function BlogPage() {
             // Use <a> tag instead of Link to ensure proper middleware redirection to login
             // for protected routes. Client-side transitions (Link) fail when middleware
             // redirects an RSC request to an HTML page (login).
-            // We must manually include '/blog' prefix because <a> tags don't respect Next.js basePath
             <a href={`/blog/${post.slug}`} key={post.slug} className="block group">
               <div className="glass-panel p-8 rounded-2xl transition-all duration-300 hover:bg-white/15 hover:scale-[1.01]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2">
