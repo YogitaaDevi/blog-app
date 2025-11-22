@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 
 // This component mirrors the main-app Navbar visually but links back to the main app
 // Since auth state is on main-app, we check the auth-token cookie to determine login status
+// Since auth state is on main-app, we check the auth-token cookie to determine login status
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -89,9 +90,28 @@ export default function Navbar() {
           <div>
             {isLoggedIn ? (
               <button 
-                onClick={() => {
-                  // Call blog-app's logout endpoint, which clears cookie and redirects to main-app
-                  window.location.href = '/blog/api/auth/logout';
+                onClick={async () => {
+                  try {
+                    // Call blog-app's logout endpoint
+                    const response = await fetch('/blog/api/auth/logout', {
+                      method: 'POST',
+                    });
+                    
+                    if (response.ok) {
+                      const data = await response.json();
+                      
+                      // Clear localStorage (removes Privy refresh token)
+                      localStorage.clear();
+                      
+                      alert(data.message || 'Successfully logged out');
+                      
+                      // Reload page to update auth status
+                      window.location.reload();
+                    }
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Failed to logout');
+                  }
                 }}
                 className="btn-secondary text-sm"
               >
